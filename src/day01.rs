@@ -17,6 +17,10 @@ impl Elf {
             calories: calories?,
         })
     }
+    
+    fn total_calories(&self) -> i32 {
+        self.calories.iter().sum()
+    }
 }
 
 pub fn solve(lines : &Vec<std::string::String>) -> Result<()> {
@@ -26,7 +30,7 @@ pub fn solve(lines : &Vec<std::string::String>) -> Result<()> {
         .collect();
     let elves = elves?;
     
-    let mut total_calories : Vec<i32> = elves.iter().map(|elf| elf.calories.iter().sum()).collect();
+    let mut total_calories : Vec<i32> = elves.iter().map(Elf::total_calories).collect();
     total_calories.sort();
 
     let max_calories = total_calories.iter().rev().next().unwrap();
