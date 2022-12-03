@@ -2,7 +2,7 @@ use anyhow::Result;
 use std::string::String;
 use std::vec::Vec;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum Symbol {
     Rock,
     Paper,
@@ -43,6 +43,18 @@ impl Symbol {
             Symbol::Scissors => 3,
         }
     }
+    
+    fn desired_state_from_opponent(&self, state : GameResult) -> Self {
+        match (&self, state) {
+            (_, GameResult::Draw) => self.clone(),
+            (Symbol::Rock, GameResult::Win) => Symbol::Paper,
+            (Symbol::Rock, GameResult::Loose) => Symbol::Scissors,            
+            (Symbol::Paper, GameResult::Win) => Symbol::Scissors,            
+            (Symbol::Paper, GameResult::Loose) => Symbol::Rock,            
+            (Symbol::Scissors, GameResult::Win) => Symbol::Rock,            
+            (Symbol::Scissors, GameResult::Loose) => Symbol::Paper,            
+        }
+    }
 }
 
 impl Game {
@@ -66,15 +78,16 @@ impl Game {
             Some(_) => None,
             None => None,
         };
+        let opponent = opponent.unwrap();
         let me: Option<Symbol> = match splits.next() {
-            Some("X") => Some(Symbol::Rock),
-            Some("Y") => Some(Symbol::Paper),
-            Some("Z") => Some(Symbol::Scissors),
+            Some("X") => Some(opponent.desired_state_from_opponent(GameResult::Loose)),
+            Some("Y") => Some(opponent.desired_state_from_opponent(GameResult::Draw)),
+            Some("Z") => Some(opponent.desired_state_from_opponent(GameResult::Win)),
             Some(_) => None,
             None => None,
         };
         Ok(Game {
-            opponent: opponent.unwrap(),
+            opponent: opponent,
             me: me.unwrap(),
         })
     }
